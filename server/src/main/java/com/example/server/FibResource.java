@@ -3,19 +3,19 @@ package com.example.server;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
 import com.example.model.Value;
 
 import io.quarkus.redis.client.reactive.ReactiveRedisClient;
 import io.smallrye.mutiny.Multi;
-import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.pgclient.PgPool;
 import io.vertx.mutiny.redis.client.Response;
-import io.vertx.mutiny.sqlclient.Row;
-import io.vertx.mutiny.sqlclient.RowSet;
+import io.vertx.mutiny.sqlclient.Tuple;
 
 @Path("/")
 public class FibResource {
@@ -25,6 +25,13 @@ public class FibResource {
 
     @Inject
     ReactiveRedisClient redisClient;
+
+    @PostConstruct
+    public void init() {
+        client.query("CREATE TABLE IF NOT EXISTS values (number INT)").execute()
+        .subscribe()
+        .with(item -> System.out.println(item + " table created successfully in postgres"), fail -> fail.printStackTrace());
+    }
 
     @GET
     public String getDefault() {
@@ -48,10 +55,31 @@ public class FibResource {
     @GET
     @Path("/values/current")
     public Object getCurrent() {
-        Uni<Response> hgetall = redisClient.hgetall("values");
-        
+        redisClient.hgetall("values").onItem()
+        .transform(response -> {
+            Response response2 = response.get("values");
+            System.out.print(response + " " + response2);
+            return "1";
+        }).subscribe();
         
         return null;
     }
 
+    @POST
+    @Path("/values")
+    public Object findFibIndex(Value value) {
+        redisClient.hset(List.of("values", String.valueOf(value.getIndex()), "Nothing yet!"))
+        .subscribe()
+        .with(item -> System.out.println(item + " stored successfully in redis"), fail -> fail.printStackTrace());
+
+        redisClient.publish("insert", String.valueOf(value.getIndex()))
+        .subscribe()
+        .with(item -> System.out.println(item + " published successfully in redis"), fail -> fail.printStackTrace());
+        
+        client.preparedQuery("INSERT INTO values(number) VALUES($1)").execute(Tuple.of(value.getIndex()))
+        .subscribe()
+        .with(item -> System.out.println(item + " inserted successfully in postgres"), fail -> fail.printStackTrace());
+        
+        return null;
+    }
 }
