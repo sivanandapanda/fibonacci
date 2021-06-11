@@ -1,18 +1,19 @@
 package com.example.server;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
 import com.example.model.Value;
+import com.example.service.FibService;
 
 import io.quarkus.redis.client.reactive.ReactiveRedisClient;
 import io.smallrye.mutiny.Multi;
+import io.smallrye.mutiny.Uni;
 import io.vertx.mutiny.pgclient.PgPool;
 import io.vertx.mutiny.redis.client.Response;
 import io.vertx.mutiny.sqlclient.Tuple;
@@ -26,12 +27,8 @@ public class FibResource {
     @Inject
     ReactiveRedisClient redisClient;
 
-    @PostConstruct
-    public void init() {
-        client.query("CREATE TABLE IF NOT EXISTS values (number INT)").execute()
-        .subscribe()
-        .with(item -> System.out.println(item + " table created successfully in postgres"), fail -> fail.printStackTrace());
-    }
+    @Inject
+    FibService fibService;
 
     @GET
     public String getDefault() {
@@ -40,29 +37,20 @@ public class FibResource {
 
     @GET
     @Path("/values/all")
-    public List<Value> getAllValues() {
-
-        List<Value> result = new ArrayList<>();
-
-        client.query("SELECT * from values").execute().onItem()
-                .transformToMulti(set -> Multi.createFrom().iterable(set)).onItem()
-                .transform(mapper -> Value.from(mapper)).collect().asList().subscribe()
-                .with(item -> result.addAll(item), fail -> fail.printStackTrace());
-
-        return result;
+    public Multi<Value> getAllValues() {
+        return client.query("SELECT * from values").execute()
+        .onItem().transformToMulti(set -> Multi.createFrom().iterable(set))
+        .onItem().transform(mapper -> Value.from(mapper));
     }
 
     @GET
     @Path("/values/current")
-    public Object getCurrent() {
-        redisClient.hgetall("values").onItem()
-        .transform(response -> {
-            Response response2 = response.get("values");
-            System.out.print(response + " " + response2);
-            return "1";
-        }).subscribe();
-        
-        return null;
+    public Multi<String> getCurrent() {
+        return redisClient.hgetall("values").onItem()
+        .transformToMulti(response -> {
+            List<String> collect = response.getKeys().stream().map(k -> response.get(k).toString()).collect(Collectors.toList());
+            return Multi.createFrom().iterable(collect);
+        });
     }
 
     @POST

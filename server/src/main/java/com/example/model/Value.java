@@ -1,8 +1,11 @@
 package com.example.model;
 
+import java.io.Serializable;
+
 import io.vertx.mutiny.sqlclient.Row;
 
-public class Value {
+public class Value implements Serializable{
+    
     private int index;
 
     public Value() {}
@@ -20,6 +23,6 @@ public class Value {
     }
 
     public static Value from(Row row) {
-        return new Value(row.getInteger("index"));
+        return new Value(row.getInteger("number"));
     }
 }
