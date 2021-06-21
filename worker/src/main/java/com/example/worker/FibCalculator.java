@@ -1,32 +1,24 @@
 package com.example.worker;
 
-import io.quarkus.redis.client.reactive.ReactiveRedisClient;
-import io.quarkus.runtime.StartupEvent;
-import io.smallrye.mutiny.Multi;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.annotation.Priority;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-import java.time.Duration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class FibCalculator {
 
-    @Inject
+    public static void main(String[] args) {
+        System.out.println("I am running!");
+    }
+
+    /*@Inject
     ReactiveRedisClient redisClient;
 
+    @Inject
+    Logger log;
+
     public void init(@Observes @Priority(2) StartupEvent event) {
-        /*redisClient.subscribe(List.of("insert")).onItem()
+        *//*redisClient.subscribe(List.of("insert")).onItem()
         .transform(response -> {
             var keys = response.getKeys();
 
         })
-        ;*/
+        ;*//*
 
         Multi.createBy().repeating()
                 .supplier(() -> this.redisClient.subscribe(List.of("insert"))
@@ -56,6 +48,6 @@ public class FibCalculator {
     @PreDestroy
     void destroy() {
         redisClient.unsubscribe(List.of("insert")).await().atMost(Duration.ofSeconds(5));
-    }
+    }*/
 
 }
