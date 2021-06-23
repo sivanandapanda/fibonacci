@@ -1,53 +1,35 @@
 package com.example.worker;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
+
+import javax.sound.midi.Receiver;
+import java.util.HashMap;
+import java.util.Map;
+
 public class FibCalculator {
 
-    public static void main(String[] args) {
-        System.out.println("I am running!");
-    }
+    @Autowired
+    StringRedisTemplate redisTemplate;
 
-    /*@Inject
-    ReactiveRedisClient redisClient;
+    private static final Logger LOGGER = LoggerFactory.getLogger(Receiver.class);
 
-    @Inject
-    Logger log;
-
-    public void init(@Observes @Priority(2) StartupEvent event) {
-        *//*redisClient.subscribe(List.of("insert")).onItem()
-        .transform(response -> {
-            var keys = response.getKeys();
-
-        })
-        ;*//*
-
-        Multi.createBy().repeating()
-                .supplier(() -> this.redisClient.subscribe(List.of("insert"))
-                        .onItem().transformToMulti(keys -> Multi.createFrom().iterable(keys))
-                        .onItem().castTo(String.class))
-                .indefinitely()
-                .onItem().disjoint()
-                .onOverflow().drop(res -> log.warn("Dropping msg: {}", res))
-                .subscribe().with(res -> log.debug("Processed msg({})", res), err -> log.error("Caught exception: {}", err));
-
-    }
-
-    private int fib(int index) {
-        return fib(index, new HashMap<>());
+    public void receiveMessage(String message) {
+        LOGGER.info("Received <" + message + ">");
+        int calculatedFib = fib(Integer.parseInt(message), new HashMap<>());
+        redisTemplate.opsForHash().put("values", message, String.valueOf(calculatedFib));
+        LOGGER.info("For " + message + " fibonacci sequence is " + calculatedFib);
     }
 
     private int fib(int index, Map<Integer, Integer> cache) {
-        if(index < 2) return 1;
+        if (index < 2) return 1;
 
-        if(cache.containsKey(index)) return cache.get(index);
+        if (cache.containsKey(index)) return cache.get(index);
 
-        int result = fib(index-1, cache) + fib(index-2, cache);
+        int result = fib(index - 1, cache) + fib(index - 2, cache);
         cache.put(index, result);
         return result;
     }
-
-    @PreDestroy
-    void destroy() {
-        redisClient.unsubscribe(List.of("insert")).await().atMost(Duration.ofSeconds(5));
-    }*/
-
 }
