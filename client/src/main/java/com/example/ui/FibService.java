@@ -3,7 +3,7 @@ package com.example.ui;
 import java.io.Serializable;
 import java.util.List;
 
-import com.example.model.Value;
+import com.example.ui.model.Value;
 import org.springframework.stereotype.Service;
 
 @Service

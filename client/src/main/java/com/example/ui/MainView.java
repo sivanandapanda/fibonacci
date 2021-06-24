@@ -1,6 +1,6 @@
 package com.example.ui;
 
-import com.example.model.Value;
+import com.example.ui.model.Value;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;

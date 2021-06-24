@@ -1,15 +1,14 @@
-package com.example.model;
+package com.example.ui.model;
 
-import java.io.Serializable;
-
-public class Value implements Serializable{
+public class Value {
 
     private int index;
 
-    public Value() {}
-
     public Value(int index) {
         this.index = index;
+    }
+
+    public Value() {
     }
 
     public int getIndex() {

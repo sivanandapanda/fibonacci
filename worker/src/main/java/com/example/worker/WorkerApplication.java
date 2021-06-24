@@ -15,41 +15,41 @@ import java.util.concurrent.CountDownLatch;
 @SpringBootApplication
 public class WorkerApplication {
 
-    @Bean
-    RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory,
-                                            MessageListenerAdapter listenerAdapter) {
+	@Bean
+	RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory,
+											MessageListenerAdapter listenerAdapter) {
 
-        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
-        container.setConnectionFactory(connectionFactory);
-        container.addMessageListener(listenerAdapter, new PatternTopic("insert"));
+		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+		container.setConnectionFactory(connectionFactory);
+		container.addMessageListener(listenerAdapter, new PatternTopic("insert"));
 
-        return container;
-    }
+		return container;
+	}
 
-    @Bean
-    MessageListenerAdapter listenerAdapter(FibCalculator receiver) {
-        return new MessageListenerAdapter(receiver, "receiveMessage");
-    }
+	@Bean
+	MessageListenerAdapter listenerAdapter(FibCalculator receiver) {
+		return new MessageListenerAdapter(receiver, "receiveMessage");
+	}
 
-    @Bean
-    FibCalculator receiver() {
-        return new FibCalculator();
-    }
+	@Bean
+	FibCalculator receiver() {
+		return new FibCalculator();
+	}
 
-    @Bean
-    StringRedisTemplate template(RedisConnectionFactory connectionFactory) {
-        return new StringRedisTemplate(connectionFactory);
-    }
+	@Bean
+	StringRedisTemplate template(RedisConnectionFactory connectionFactory) {
+		return new StringRedisTemplate(connectionFactory);
+	}
 
-    @Bean
-    public CountDownLatch closeLatch() {
-        return new CountDownLatch(1);
-    }
+	@Bean
+	public CountDownLatch closeLatch() {
+		return new CountDownLatch(1);
+	}
 
-    public static void main(String[] args) throws InterruptedException {
-        ApplicationContext ctx = SpringApplication.run(WorkerApplication.class, args);
-        final CountDownLatch closeLatch = ctx.getBean(CountDownLatch.class);
-        Runtime.getRuntime().addShutdownHook(new Thread(closeLatch::countDown));
-        closeLatch.await();
-    }
+	public static void main(String[] args) throws InterruptedException {
+		ApplicationContext ctx = SpringApplication.run(WorkerApplication.class, args);
+		final CountDownLatch closeLatch = ctx.getBean(CountDownLatch.class);
+		Runtime.getRuntime().addShutdownHook(new Thread(closeLatch::countDown));
+		closeLatch.await();
+	}
 }
