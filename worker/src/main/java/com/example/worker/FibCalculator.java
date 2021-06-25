@@ -18,17 +18,17 @@ public class FibCalculator {
 
     public void receiveMessage(String message) {
         LOGGER.info("Received <" + message + ">");
-        int calculatedFib = fib(Integer.parseInt(message), new HashMap<>());
+        long calculatedFib = fib(Long.parseLong(message), new HashMap<>());
         redisTemplate.opsForHash().put("values", message, String.valueOf(calculatedFib));
         LOGGER.info("For " + message + " fibonacci sequence is " + calculatedFib);
     }
 
-    private int fib(int index, Map<Integer, Integer> cache) {
+    private long fib(long index, Map<Long, Long> cache) {
         if (index < 2) return 1;
 
         if (cache.containsKey(index)) return cache.get(index);
 
-        int result = fib(index - 1, cache) + fib(index - 2, cache);
+        long result = fib(index - 1, cache) + fib(index - 2, cache);
         cache.put(index, result);
         return result;
     }
