@@ -16,18 +16,21 @@ public class FibService implements Serializable {
     @Autowired
     RestTemplate restTemplate;
 
+    @org.springframework.beans.factory.annotation.Value("${fibonacci.server.url}")
+    private String fibonacciServerUrl;
+
     public List<Value> getCurrent() {
-        var currentValues = restTemplate.getForObject("http://localhost:8081/api/values/current", Value[].class);
+        var currentValues = restTemplate.getForObject(fibonacciServerUrl+"/api/values/current", Value[].class);
         return currentValues != null ? List.of(currentValues) : emptyList();
     }
 
     public List<String> getAll() {
-        var allValues = restTemplate.getForObject("http://localhost:8081/api/values/all", String[].class);
+        var allValues = restTemplate.getForObject(fibonacciServerUrl + "/api/values/all", String[].class);
         return allValues != null ? List.of(allValues) : emptyList();
     }
 
     public String calculateFib(String index) {
-        restTemplate.postForLocation("http://localhost:8081/api/values", new Value(index));
+        restTemplate.postForLocation(fibonacciServerUrl + "/api/values", new Value(index));
         return "Calculate " + index;
     }
 }
