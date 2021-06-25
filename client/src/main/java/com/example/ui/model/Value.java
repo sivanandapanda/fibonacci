@@ -2,20 +2,21 @@ package com.example.ui.model;
 
 public class Value {
 
-    private int index;
+    private String index;
+    private String value;
 
-    public Value(int index) {
+    public Value(String index) {
         this.index = index;
     }
 
     public Value() {
     }
 
-    public int getIndex() {
+    public String getIndex() {
         return index;
     }
 
-    public void setIndex(int index) {
-        this.index = index;
+    public String getValue() {
+        return value;
     }
 }

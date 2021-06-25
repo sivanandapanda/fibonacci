@@ -24,13 +24,13 @@ public class FibResource {
 
     @GET
     @Path("/values/all")
-    public Multi<Value> getAllValues() {
+    public Multi<String> getAllValues() {
         return fibService.getAllValuesFromDb();
     }
 
     @GET
     @Path("/values/current")
-    public Multi<String> getAllCurrent() {
+    public Multi<Value> getAllCurrent() {
         return fibService.getAllCurrentFromCache();
     }
 

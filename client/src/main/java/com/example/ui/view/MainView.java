@@ -1,6 +1,6 @@
-package com.example.ui;
+package com.example.ui.view;
 
-import com.example.ui.model.Value;
+import com.example.ui.service.FibService;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -8,16 +8,12 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.PWA;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Route
 @PWA(name = "Fibonacci App",
@@ -40,14 +36,19 @@ public class MainView extends VerticalLayout {
         button.addClickShortcut(Key.ENTER);
         addClassName("centered-content");
 
-        var indicesSeen = service.getAll().stream().map(Value::getIndex).map(String::valueOf).collect(Collectors.joining(","));
+        var indicesSeen = String.join(", ", service.getAll());
         H3 indexesSeenH3 = new H3("Indexes I have seen: " + indicesSeen);
 
 
         H3 calcValuesH3 = new H3("Calculated Values:");
         Div div = new Div();
-        service.getAll()
-                .forEach(value -> div.add(new Paragraph("For index " + value.getIndex() + " I calculated X")));
+        div.setWidthFull();
+        service.getCurrent()
+                .forEach(value -> {
+                    Paragraph paragraph = new Paragraph("For index " + value.getIndex() + " I calculated " + value.getValue());
+                    paragraph.setWidthFull();
+                    div.add(paragraph);
+                });
 
         add(textField, button, indexesSeenH3, calcValuesH3, div);
     }

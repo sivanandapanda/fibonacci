@@ -1,10 +1,5 @@
 package com.example.service;
 
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
-
 import com.example.model.Value;
 import io.quarkus.redis.client.reactive.ReactiveRedisClient;
 import io.smallrye.mutiny.Multi;
@@ -13,6 +8,11 @@ import io.vertx.mutiny.pgclient.PgPool;
 import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.Tuple;
 
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
@@ -26,11 +26,11 @@ public class FibService {
 
     @PostConstruct
     public void init() {
-        client.query("CREATE TABLE IF NOT EXISTS values (number INT)").execute().await().indefinitely();
+        client.query("CREATE TABLE IF NOT EXISTS values (number VARCHAR)").execute().await().indefinitely();
     }
 
-    public static Value from(Row row) {
-        return new Value(row.getInteger("number"));
+    public static Integer from(Row row) {
+        return row.getInteger("number");
     }
 
     public Uni<Response> submitFibIndexCalcRequest(Value value) {
@@ -43,18 +43,22 @@ public class FibService {
                 .combinedWith(listOfResponses -> Response.accepted().build());
     }
 
-    public Multi<String> getAllCurrentFromCache() {
+    public Multi<Value> getAllCurrentFromCache() {
         return redisClient.hgetall("values").onItem()
                 .transformToMulti(response -> {
-                    return Multi.createFrom().iterable(List.of(response.toString()));
-                    //List<String> collect = response.getKeys().stream().map(k -> response.get(k).toString()).collect(Collectors.toList());
-                    //return Multi.createFrom().iterable(collect);
+                    List<Value> values = new ArrayList<>();
+
+                    for (String key : response.getKeys()) {
+                        values.add(new Value(key, response.get(key).toString()));
+                    }
+
+                    return Multi.createFrom().iterable(values);
                 });
     }
 
-    public Multi<Value> getAllValuesFromDb() {
-        return client.query("SELECT * from values").execute()
+    public Multi<String> getAllValuesFromDb() {
+        return client.query("SELECT DISTINCT number from values").execute()
                 .onItem().transformToMulti(set -> Multi.createFrom().iterable(set))
-                .onItem().transform(FibService::from);
+                .onItem().transform(row -> row.getString("number"));
     }
 }

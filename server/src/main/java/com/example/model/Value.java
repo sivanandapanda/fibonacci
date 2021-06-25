@@ -1,16 +1,22 @@
 package com.example.model;
 
 public class Value {
-    private int index;
+    private String index;
+    private String value;
 
-    public Value(int index) {
+    public Value(String index, String value) {
         this.index = index;
+        this.value = value;
     }
 
     public Value() {
     }
 
-    public int getIndex() {
+    public String getIndex() {
         return index;
+    }
+
+    public String getValue() {
+        return value;
     }
 }
