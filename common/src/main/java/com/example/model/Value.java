@@ -1,9 +1,13 @@
-package com.example.ui.model;
+package com.example.model;
 
 public class Value {
-
     private String index;
     private String value;
+
+    public Value(String index, String value) {
+        this.index = index;
+        this.value = value;
+    }
 
     public Value(String index) {
         this.index = index;

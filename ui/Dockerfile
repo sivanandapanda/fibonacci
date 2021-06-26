@@ -1,4 +1,4 @@
-FROM openjdk:16
+FROM openjdk:11
 ARG JAR_FILE=target/*.jar
 COPY ${JAR_FILE} app.jar
 RUN useradd -m myuser

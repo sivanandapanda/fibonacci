@@ -1,6 +1,6 @@
 package com.example.ui.service;
 
-import com.example.ui.model.Value;
+import com.example.model.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;

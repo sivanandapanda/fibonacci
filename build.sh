@@ -1,13 +1,15 @@
 #!/bin/bash
 
-mvn -f client/pom.xml vaadin:prepare-frontend
-mvn -f client/pom.xml clean package -Pproduction spring-boot:repackage
+mvn clean install -DskipTests
+
+mvn -f ui/pom.xml vaadin:prepare-frontend
+mvn -f ui/pom.xml clean package -Pproduction spring-boot:repackage
 
 mvn -f worker/pom.xml clean package spring-boot:repackage
 #mvn -f server/pom.xml clean package
 mvn -f server/pom.xml package -Pnative -Dquarkus.native.container-build=true
 
-docker build -t sivadocker17/fibonacci-ui client/.
+docker build -t sivadocker17/fibonacci-ui ui/.
 
 docker build -t sivadocker17/fibonacci-worker worker/.
 
