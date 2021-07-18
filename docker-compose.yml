@@ -16,7 +16,7 @@ services:
       - REDIS_TIMEOUT=60000
       - REDIS_PASSWORD=
   server:
-    image: 'sivadocker17/fibonacci-server-native'
+    image: 'sivadocker17/fibonacci-server'
     environment:
       - PG_USER=quarkus_test
       - PG_PASSWORD=quarkus_test

@@ -1,0 +1,14 @@
+FROM openjdk:11-jre-slim-stretch 
+
+ENV JAVA_OPTIONS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
+
+RUN mkdir -p /deployments/lib
+
+COPY run-java.sh /deployments
+COPY target/quarkus-app/lib/ /deployments/lib/
+COPY target/quarkus-app/*.jar /deployments/
+COPY target/quarkus-app/app/ /deployments/app/
+COPY target/quarkus-app/quarkus/ /deployments/quarkus/
+
+ENTRYPOINT [ "/deployments/run-java.sh" ]
+
